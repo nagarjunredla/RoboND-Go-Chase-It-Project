@@ -24,6 +24,7 @@ void process_image_callback(const sensor_msgs::Image img)
 
     int white_pixel    = 255;
     int pixel_location = 0;
+    int num_pixels = 0;
     bool ball_found    = false;
 
     // TODO: Loop through each pixel in the image and check if there's a bright white one
@@ -35,20 +36,23 @@ void process_image_callback(const sensor_msgs::Image img)
         if(img.data[i] == white_pixel && img.data[i + 1] == white_pixel && img.data[i + 2] == white_pixel)
         {
             ball_found     = true;
-            pixel_location = i % img.step;
-            break;
+            pixel_location += (i % (img.width * 3)) / 3;
+            num_pixels+=1;
         }
     }
 
     int middle_window = 300;
     int left_window   = (img.width - middle_window) / 2;
+
+
   
     if (ball_found) {
-        if (pixel_location < left_window) {
+        int mean_pixel_location = pixel_location / num_pixels;
+        if (mean_pixel_location < left_window) {
             // Drive left
             drive_robot(0.25, 0.5);
         }
-        else if (pixel_location > (left_window + middle_window)) {
+        else if (mean_pixel_location > (left_window + middle_window)) {
             // Drive right
             drive_robot(0.25, -0.5);
         }
